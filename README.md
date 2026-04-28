@@ -1,93 +1,339 @@
-# nebius-academy-ddp
+# Homework: Distributed GPU Training on Nebius Cloud with SkyPilot
+**Estimated time:** 3–5 hours  
+**Platform:** Nebius Cloud (mk8s + Container registry + SkyPilot API)
 
+---
 
+## Overview
 
-## Getting started
+In this homework you will set up a distributed training MLOps pipeline on Nebius Cloud:
+provision a managed Kubernetes cluster with GPU nodes, deploy a SkyPilot API server,
+containerize a training workload, and launch a distributed training job using PyTorch DDP.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+> Use as a reference: (https://gitlab.com/jadnov/nebius-academy-ddp)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Deliverables
 
-## Add your files
+At the end of the homework, submit:
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+1. ✅ mk8s node-group configuration 
+2. ✅ Your `Dockerfile` and `train.py`
+3. ✅ Your SkyPilot job YAML (`train_job.yaml`)
+4. ✅ Full training log (from `sky logs`) that includes the NCCL initialization section
+
+---
+
+## Prerequisites: Install the Nebius AI Cloud CLI 
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/jadnov/nebius-academy-ddp.git
-git branch -M main
-git push -uf origin main
+curl -sSL https://storage.eu-north1.nebius.cloud/cli/install.sh | bash
 ```
 
-## Integrate with your tools
+which manages all Nebius AI Cloud resources: https://docs.nebius.com/cli/install
 
-* [Set up project integrations](https://gitlab.com/jadnov/nebius-academy-ddp/-/settings/integrations)
+## Task 1 — Create an mk8s Cluster on Nebius Cloud
 
-## Collaborate with your team
+### Goal
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Provision a Nebius Managed Kubernetes (mk8s) cluster with a single nodegroup using a **1-GPU node preset**.
 
-## Test and Deploy
+### Steps
 
-Use the built-in continuous integration in GitLab.
+1. Log in to the [Nebius Cloud Console](https://console.nebius.com).
+2. Navigate to **Managed Kubernetes → Clusters → Create cluster**.
+3. Configure the cluster:
+   - **Name:** choose a name for your cluster
+   - **Kubernetes version:** latest stable
+   - **Network:** default VPC
+4. Add a **Node Group**:
+   - **Name:** name for a node-group
+   - **Node preset:** `gpu-h100-b-1gpu` *(Alternatives: `gpu-l40s-1gpu` for L40S)*
+   - **Nodes:** `2`
+   - **Disk:** 100 GB SSD
+5. Create `Service Account` and add it to `Viewers` group (to allow access to container registry from nodes)
+6. Click **Create** and wait for the cluster to reach **Running** status (~5 min).
+7. Download the kubeconfig:
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+```bash
+nebius mk8s cluster get-credentials \
+  --id <YOUR_CLUSTER_ID> \
+  --external \
+  --kubeconfig ~/.kube/config
+```
 
-***
+7. Verify connectivity:
 
-# Editing this README
+```bash
+kubectl get nodes
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Expected Output
 
-## Suggestions for a good README
+```
+NAME                                 STATUS   ROLES    AGE     VERSION
+computeinstance-e00gt41yn2fpng6qzm   Ready    <none>   5m10s   v1.33.7
+computeinstance-e00r2v341f0f616jjq   Ready    <none>   4m59s   v1.33.7
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+As delivarble from this step prepare node-group config in following format:
+```
+nebius mk8s node-group get --id <node-group-id> --format json | jq '{metadata, spec}'
+```
 
-## Name
-Choose a self-explaining name for your project.
+---
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Task 2 — Deploy SkyPilot API Server & Connect a Client
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Goal
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Deploy the SkyPilot API server as Nebius managed service,
+then configure the local `sky` CLI to talk to it.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Steps
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+#### 2a. Deploy the Managed SkyPilot API Server
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+1. In the Nebius AI Cloud console, go to AI Services → SkyPilot.
+2. Enter a name for the application or keep the default one.
+3. Select a Platform and a Preset (4 vCPUs and 16G RAM) for the API server VM.
+4. Click Deploy application and wait for the Public endpoint availability (~5 min).
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+#### 2b. Install SkyPilot locally
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install --with pip "skypilot[nebius]"
+sky api login -e "https://<your_api_server_public_endpoint>"
+sky check nebius
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Verify the connection:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+sky api info
+sky check kubernetes
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Expected Output
 
-## License
-For open source projects, say how it is licensed.
+```
+$ sky check kubernetes
+🎉 Enabled infra 🎉
+  Kubernetes [compute]
+    Allowed contexts:
+    └── <your_mk8s_cluster_name>
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+---
+
+## Task 3 — Build a Docker Container for Training
+
+### Goal
+
+Create a Docker image with all dependencies needed to train model using PyTorch DDP.
+
+### Dockerfile
+
+Create a file named `Dockerfile`:
+
+```dockerfile
+FROM nvcr.io/nvidia/pytorch:25.12-py3
+
+WORKDIR /workspace
+
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+RUN python -m pip install --no-cache-dir \
+    transformers \
+    datasets \
+    accelerate \
+    peft \
+    trl \
+    bitsandbytes \
+    wandb \
+    scipy
+
+CMD ["bash"]
+```
+
+### Training Script
+
+Create a file named `train.py`. This script train a small causal LM with DDP:
+
+> **Alternative models for faster testing:** 
+> `"facebook/opt-1.3b"` or `"tiiuae/falcon-7b"`
+> both are publicly available and work identically with the script.
+
+### Create Docker Registry on Nebius cloud
+
+1. Navigate to **Storage → Container registry → Create registry**.
+2. Run the command that sets up the CLI as a Docker credential helper for Nebius registries:
+```
+nebius registry configure-helper
+```
+
+### Build Docker container from Dockerfile & Push to registry
+
+```bash
+# Build from Dockerfile in the local directory
+docker build -t <registry>/nebius-trainer:v1 .
+# Push to Nebius Container Registry (or any registry your cluster can pull from)
+docker push <registry>/nebius-trainer:v1
+```
+
+> **Hint:** Nebius Container Registry endpoint looks like:
+> `cr.<region>.nebius.cloud/<registry-id>/`
+
+---
+
+## Task 4 — Write the SkyPilot Job YAML with PyTorch DDP
+
+### Goal
+
+Write a SkyPilot task YAML that launches the training container on your Kubernetes cluster
+using `torchrun` for DDP.
+
+### `train_job.yaml`
+
+```yaml
+name: nebius-ddp-training
+
+workdir: .
+
+resources:
+  infra: k8s/<mk8s-cluster-name>
+  accelerators: "H100:1"
+  memory: "60+"
+  image_id: docker:cr.<region>.nebius.cloud/<registry-id>/nebius-trainer:v1
+
+num_nodes: 2
+
+envs:
+  MODEL_ID: "facebook/opt-2.7b"
+  TRAIN_SCRIPT: "train.py"
+  BLOCK_SIZE: "512"
+  PER_DEVICE_TRAIN_BATCH_SIZE: "4"
+  PER_DEVICE_EVAL_BATCH_SIZE: "4"
+  GRADIENT_ACCUMULATION_STEPS: "1"
+  DATALOADER_NUM_WORKERS: "8"
+  TOKENIZERS_PARALLELISM: "false"
+  NCCL_DEBUG: INFO
+  NCCL_DEBUG_SUBSYS: INIT,NET
+
+setup: |
+  echo "Setup complete"
+  nvidia-smi || true
+
+run: |
+  set -euxo pipefail
+
+  MASTER_ADDR=$(echo "$SKYPILOT_NODE_IPS" | head -n 1)
+  MASTER_PORT=29500
+
+  echo "SKYPILOT_NODE_RANK=${SKYPILOT_NODE_RANK}"
+  echo "SKYPILOT_NUM_NODES=${SKYPILOT_NUM_NODES}"
+  echo "SKYPILOT_NUM_GPUS_PER_NODE=${SKYPILOT_NUM_GPUS_PER_NODE}"
+  echo "SKYPILOT_NODE_IPS:"
+  echo "$SKYPILOT_NODE_IPS"
+  echo "MASTER_ADDR=${MASTER_ADDR}"
+  echo "PWD=$(pwd)"
+  test -f "${TRAIN_SCRIPT}"
+
+  torchrun \
+    --nproc_per_node=${SKYPILOT_NUM_GPUS_PER_NODE} \
+    --nnodes=${SKYPILOT_NUM_NODES} \
+    --node_rank=${SKYPILOT_NODE_RANK} \
+    --master_addr=${MASTER_ADDR} \
+    --master_port=${MASTER_PORT} \
+    "${TRAIN_SCRIPT}"
+```
+
+> **Key SkyPilot environment variables used:**
+>
+> | Variable | Meaning |
+> |---|---|
+> | `SKYPILOT_NUM_GPUS_PER_NODE` | Number of GPUs on this node |
+> | `SKYPILOT_NUM_NODES` | Total nodes in the job |
+> | `SKYPILOT_NODE_RANK` | Rank of this node (0 = head) |
+> | `SKYPILOT_INTERNAL_HEAD_IP` | IP of the head node for rendezvous |
+
+> **Hint — NCCL debug logs:** Setting `NCCL_DEBUG=INFO` is essential for this homework —
+> it makes NCCL print initialisation details
+> that you need to include in your submission.
+
+---
+
+## Task 5 — Run Training for 500 Steps & Collect Results
+
+### Goal
+
+Submit the job, wait for it to finish, and capture training logs with NCCL init section
+
+### 5a. Submit the job
+
+```bash
+sky launch -c ddp-run train_job.yaml
+```
+
+Watch live logs:
+
+```bash
+sky logs ddp-run
+```
+
+### 5b. Save the full log
+
+```bash
+sky logs ddp-run > training_log.txt
+```
+
+Verify the log contains NCCL init lines — look for patterns like:
+
+```
+[0] NCCL INFO Bootstrap : Using eth0:10.x.x.x<0>
+[0] NCCL INFO NET/Plugin : No plugin found, using internal net plugin
+```
+
+### 5c. Clean up
+
+```bash
+sky down ddp-run
+```
+
+---
+
+## Submission Checklist
+
+| # | Item | File name |
+|---|------|-----------|
+| 1 | mk8s node-group configuration  | `mk8s-ng-config.json` |
+| 2 | Dockerfile | `Dockerfile` |
+| 3 | Training script | `train.py` |
+| 4 | SkyPilot job YAML | `train_job.yaml` |
+| 5 | Full training log (must include NCCL init) | `training_log.txt` |
+
+---
+
+## Grading Criteria
+
+| Task | Points |
+|------|--------|
+| mk8s cluster running with correct setup of GPU nodes | 15 |
+| Dockerfile builds successfully | 15 |
+| `train.py` runs correctly | 20 |
+| `train_job.yaml` correct (torchrun + SkyPilot vars) | 20 |
+| Training log contains NCCL init section | 20 |
+| **Total** | **100** |
+
+---
+
+## Useful Resources
+
+- [Nebius Cloud docs — mk8s](https://docs.nebius.com/mk8s/)
+- [Nebius Cloud docs — Container registry](https://docs.nebius.com/container-registry/quickstart)
+- [Nebius Cloud docs — SkyPilot](https://docs.nebius.com/3p-integrations/skypilot)
+- [SkyPilot documentation](https://skypilot.readthedocs.io/)
+- [PyTorch DDP tutorial](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)
+- [NCCL environment variables](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html)
+
+---
