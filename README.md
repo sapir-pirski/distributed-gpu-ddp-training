@@ -31,102 +31,15 @@ curl -sSL https://storage.eu-north1.nebius.cloud/cli/install.sh | bash
 
 which manages all Nebius AI Cloud resources: https://docs.nebius.com/cli/install
 
-## Task 1 — Create an mk8s Cluster on Nebius Cloud
+## Task 1 — Build a Docker Container for Training
 
-### Goal
+Note: this is a slowest part of this homework, o you may start it and in parrallel do another stuff.
 
-Provision a Nebius Managed Kubernetes (mk8s) cluster with a single nodegroup using a **1-GPU node preset**.
+There are three ways to handle it:
 
-### Steps
-
-1. Log in to the [Nebius Cloud Console](https://console.nebius.com).
-2. Navigate to **Managed Kubernetes → Clusters → Create cluster**.
-3. Configure the cluster:
-   - **Name:** choose a name for your cluster
-   - **Kubernetes version:** latest stable
-   - **Network:** default VPC
-4. Add a **Node Group**:
-   - **Name:** name for a node-group
-   - **Node preset:** `gpu-h100-b-1gpu` *(Alternatives: `gpu-l40s-1gpu` for L40S)*
-   - **Nodes:** `2`
-   - **Disk:** 100 GB SSD
-5. Create `Service Account` and add it to `Viewers` group (to allow access to container registry from nodes)
-6. Click **Create** and wait for the cluster to reach **Running** status (~5 min).
-7. Download the kubeconfig:
-
-```bash
-nebius mk8s cluster get-credentials \
-  --id <YOUR_CLUSTER_ID> \
-  --external \
-  --kubeconfig ~/.kube/config
-```
-
-7. Verify connectivity:
-
-```bash
-kubectl get nodes
-```
-
-### Expected Output
-
-```
-NAME                                 STATUS   ROLES    AGE     VERSION
-computeinstance-e00gt41yn2fpng6qzm   Ready    <none>   5m10s   v1.33.7
-computeinstance-e00r2v341f0f616jjq   Ready    <none>   4m59s   v1.33.7
-```
-
-As delivarble from this step prepare node-group config in following format:
-```
-nebius mk8s node-group get --id <node-group-id> --format json | jq '{metadata, spec}'
-```
-
----
-
-## Task 2 — Deploy SkyPilot API Server & Connect a Client
-
-### Goal
-
-Deploy the SkyPilot API server as Nebius managed service,
-then configure the local `sky` CLI to talk to it.
-
-### Steps
-
-#### 2a. Deploy the Managed SkyPilot API Server
-
-1. In the Nebius AI Cloud console, go to AI Services → SkyPilot.
-2. Enter a name for the application or keep the default one.
-3. Select a Platform and a Preset (4 vCPUs and 16G RAM) for the API server VM.
-4. Click Deploy application and wait for the Public endpoint availability (~5 min).
-
-#### 2b. Install SkyPilot locally
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv tool install --with pip "skypilot[nebius]"
-sky api login -e "https://<your_api_server_public_endpoint>"
-sky check nebius
-```
-
-Verify the connection:
-
-```bash
-sky api info
-sky check kubernetes
-```
-
-### Expected Output
-
-```
-$ sky check kubernetes
-🎉 Enabled infra 🎉
-  Kubernetes [compute]
-    Allowed contexts:
-    └── <your_mk8s_cluster_name>
-```
-
----
-
-## Task 3 — Build a Docker Container for Training
+1. push to Nebius Registry during the slot, 
+2. push to any public registry in advance (images there persist between sessions), 
+3. or for students with a slow connection - build and push from a small CPU VM on Nebius (during the slot, requires some setup, intended for more advanced students).
 
 ### Goal
 
@@ -183,6 +96,103 @@ docker push <registry>/nebius-trainer:v1
 
 > **Hint:** Nebius Container Registry endpoint looks like:
 > `cr.<region>.nebius.cloud/<registry-id>/`
+
+---
+
+## Task 2 — Create an mk8s Cluster on Nebius Cloud
+
+### Goal
+
+Provision a Nebius Managed Kubernetes (mk8s) cluster with a single nodegroup using a **1-GPU node preset**.
+
+### Steps
+
+1. Log in to the [Nebius Cloud Console](https://console.nebius.com).
+2. Navigate to **Managed Kubernetes → Clusters → Create cluster**.
+3. Configure the cluster:
+   - **Name:** choose a name for your cluster
+   - **Kubernetes version:** latest stable
+   - **Network:** default VPC
+4. Add a **Node Group**:
+   - **Name:** name for a node-group
+   - **Node preset:** `gpu-h100-b-1gpu` *(Alternatives: `gpu-l40s-1gpu` for L40S)*
+   - **Nodes:** `2`
+   - **Disk:** 100 GB SSD
+5. Create `Service Account` and add it to existing `tlv-mlops-hw1-sa` group (to allow access to container registry from nodes). Students using a public registry can skip this step.
+6. Click **Create** and wait for the cluster to reach **Running** status (~5 min).
+7. Download the kubeconfig:
+
+```bash
+nebius mk8s cluster get-credentials \
+  --id <YOUR_CLUSTER_ID> \
+  --external \
+  --kubeconfig ~/.kube/config
+```
+
+7. Verify connectivity:
+
+```bash
+kubectl get nodes
+```
+
+### Expected Output
+
+```
+NAME                                 STATUS   ROLES    AGE     VERSION
+computeinstance-e00gt41yn2fpng6qzm   Ready    <none>   5m10s   v1.33.7
+computeinstance-e00r2v341f0f616jjq   Ready    <none>   4m59s   v1.33.7
+```
+
+As delivarble from this step prepare node-group config in following format:
+```
+nebius mk8s node-group get --id <node-group-id> --format json | jq '{metadata, spec}'
+```
+
+---
+
+## Task 3 — Deploy SkyPilot API Server & Connect a Client
+
+### Goal
+
+Deploy the SkyPilot API server as Nebius managed service,
+then configure the local `sky` CLI to talk to it.
+
+### Steps
+
+There's a shared pre-deployed SkyPilot API server for this homework. Endpoint is visible in the console under AI Services → SkyPilot. You may self-deploy own API server as a secondary option for students who prefer it.
+
+#### 3a. Deploy the Managed SkyPilot API Server (skip if you use shared one)
+
+1. In the Nebius AI Cloud console, go to AI Services → SkyPilot.
+2. Enter a name for the application or keep the default one.
+3. Select a Platform and a Preset (4 vCPUs and 16G RAM) for the API server VM.
+4. Click Deploy application and wait for the Public endpoint availability (~5 min).
+
+#### 3b. Install SkyPilot locally
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install --with pip "skypilot[nebius]"
+sky api login -e "https://<your_api_server_public_endpoint>"
+sky check nebius
+```
+
+Verify the connection:
+
+```bash
+sky api info
+sky check kubernetes
+```
+
+### Expected Output
+
+```
+$ sky check kubernetes
+🎉 Enabled infra 🎉
+  Kubernetes [compute]
+    Allowed contexts:
+    └── <your_mk8s_cluster_name>
+```
 
 ---
 
