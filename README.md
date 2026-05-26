@@ -328,6 +328,7 @@ sky down ddp-run
 
 | Task | Points |
 |------|--------|
+| submission of results :) | 10 |
 | mk8s cluster running with correct setup of GPU nodes | 15 |
 | Dockerfile builds successfully | 15 |
 | `train.py` runs correctly | 20 |
