@@ -1,0 +1,8 @@
+.cache/
+.git/
+.tools/
+.venv/
+__pycache__/
+*.zip
+training_log.txt
+mk8s-ng-config.json

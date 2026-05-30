@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environments and caches
+.venv/
+.cache/
+.DS_Store
+
+# Local cloud/tooling state
+.tools/
+kubeconfig
+
+# Training outputs
+output/
+outputs/
+runs/
+wandb/
+nebius-ddp-submission.zip
+
+# Keep assignment deliverables visible:
+# mk8s-ng-config.json
+# Dockerfile
+# train.py
+# train_job.yaml
+# training_log.txt

@@ -1,0 +1,8 @@
+.cache/
+.git/
+.tools/
+.venv/
+__pycache__/
+*.zip
+kubeconfig
+training_log.txt

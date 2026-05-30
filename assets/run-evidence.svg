@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Nebius DDP Run Evidence</title>
+  <desc id="desc">Terminal-style capture of the successful two-node PyTorch DDP run from training_log.txt.</desc>
+  <rect width="1280" height="720" fill="#071014"/>
+  <rect x="80" y="72" width="1120" height="576" rx="18" fill="#101820" stroke="#28414a" stroke-width="2"/>
+  <rect x="80" y="72" width="1120" height="58" rx="18" fill="#18242d"/>
+  <circle cx="112" cy="101" r="8" fill="#ff5f57"/>
+  <circle cx="140" cy="101" r="8" fill="#ffbd2e"/>
+  <circle cx="168" cy="101" r="8" fill="#28c840"/>
+  <text x="206" y="107" fill="#c7d2da" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="17">training_log.txt - SkyPilot DDP run</text>
+
+  <text x="112" y="174" fill="#6ee7b7" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">$ sky exec ddp-run train_job.yaml</text>
+  <text x="112" y="226" fill="#d8e2e8" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="20">(worker1, rank=1) + torchrun --nproc_per_node=1 --nnodes=2 --node_rank=1 train.py</text>
+  <text x="112" y="264" fill="#d8e2e8" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="20">(head, rank=0)    + torchrun --nproc_per_node=1 --nnodes=2 --node_rank=0 train.py</text>
+
+  <text x="112" y="334" fill="#67e8f9" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">[NCCL] Distributed training initialised</text>
+  <text x="112" y="374" fill="#67e8f9" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">[NCCL] World size: 2</text>
+  <text x="112" y="414" fill="#67e8f9" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">[NCCL] Backend: nccl</text>
+  <text x="112" y="454" fill="#67e8f9" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">[NCCL] ncclCommInitRankConfig rank 0 nranks 2 - Init COMPLETE</text>
+
+  <text x="112" y="532" fill="#a7f3d0" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">[Done] Training complete - 10 steps finished.</text>
+  <text x="112" y="576" fill="#86efac" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="22">Job finished (status: SUCCEEDED)</text>
+
+  <rect x="920" y="500" width="206" height="56" rx="10" fill="#163227" stroke="#34d399" stroke-width="2"/>
+  <text x="952" y="536" fill="#d1fae5" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="20">2 nodes / 2 GPUs</text>
+</svg>

@@ -1,350 +1,188 @@
-# Homework: Distributed GPU Training on Nebius Cloud with SkyPilot
-**Estimated time:** 3–5 hours  
-**Platform:** Nebius Cloud (mk8s + Container registry + SkyPilot API)
+# Nebius Academy DDP Training
 
----
+![Distributed GPU training on Nebius Cloud](assets/ddp-architecture.png)
 
-## Overview
+This repository contains a completed distributed GPU training pipeline for the Nebius Academy DDP assignment. The project builds a Docker image, pushes it to Nebius Container Registry, provisions a two-node GPU Kubernetes node group, and runs a multi-node PyTorch Distributed Data Parallel job through SkyPilot.
 
-In this homework you will set up a distributed training MLOps pipeline on Nebius Cloud:
-provision a managed Kubernetes cluster with GPU nodes, deploy a SkyPilot API server,
-containerize a training workload, and launch a distributed training job using PyTorch DDP.
+The successful run used two separate H200 GPU nodes, one GPU per node, with `torchrun` and the NCCL backend. The captured log proves `World size: 2`, NCCL initialization, training completion, and a successful SkyPilot job status.
 
-> Use as a reference: (https://gitlab.com/jadnov/nebius-academy-ddp)
+## Result
 
-### Deliverables
+| Area | Value |
+| --- | --- |
+| Cloud | Nebius AI Cloud |
+| Region | `eu-north1` |
+| Registry | `cr.eu-north1.nebius.cloud/e00avpz7r2gn4zffdk` |
+| Image | `nebius-trainer:v1` |
+| Kubernetes cluster | `nebius-ddp-mk8s` |
+| Node group | `nebius-ddp-h200-ng` |
+| GPU platform | NVIDIA H200 NVLink |
+| Distributed runtime | PyTorch DDP via `torchrun` |
+| Launcher | SkyPilot on Kubernetes |
+| Final status | `SUCCEEDED` |
 
-At the end of the homework, submit:
+## Architecture
 
-1. ✅ mk8s node-group configuration 
-2. ✅ Your `Dockerfile` and `train.py`
-3. ✅ Your SkyPilot job YAML (`train_job.yaml`)
-4. ✅ Full training log (from `sky logs`) that includes the NCCL initialization section
+![DDP pipeline architecture](assets/ddp-pipeline.png)
 
----
+The pipeline is intentionally simple and reproducible:
 
-## Prerequisites: Install the Nebius AI Cloud CLI 
+1. `Dockerfile` builds the CUDA/PyTorch training image.
+2. The image is pushed to Nebius Container Registry.
+3. Nebius Managed Kubernetes provides the GPU node group.
+4. NVIDIA GPU Operator exposes GPU resources to Kubernetes.
+5. SkyPilot syncs the local workdir and launches two pods, one per node.
+6. `torchrun` starts rank 0 and rank 1 processes.
+7. `train.py` initializes NCCL and fine-tunes `facebook/opt-1.3b` for a short validation run.
+8. `training_log.txt` captures the full run output.
 
-```
-curl -sSL https://storage.eu-north1.nebius.cloud/cli/install.sh | bash
-```
+## Run Evidence
 
-which manages all Nebius AI Cloud resources: https://docs.nebius.com/cli/install
+![Terminal run evidence](assets/run-evidence.svg)
 
-## Task 1 — Build a Docker Container for Training
+Key lines from `training_log.txt`:
 
-Note: this is a slowest part of this homework, o you may start it and in parrallel do another stuff.
-
-There are three ways to handle it:
-
-1. push to Nebius Registry during the slot, 
-2. push to any public registry in advance (images there persist between sessions), 
-3. or for students with a slow connection - build and push from a small CPU VM on Nebius (during the slot, requires some setup, intended for more advanced students).
-
-### Goal
-
-Create a Docker image with all dependencies needed to train model using PyTorch DDP.
-
-### Dockerfile
-
-Create a file named `Dockerfile`:
-
-```dockerfile
-FROM nvcr.io/nvidia/pytorch:25.12-py3
-
-WORKDIR /workspace
-
-RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
-
-RUN python -m pip install --no-cache-dir \
-    transformers \
-    datasets \
-    accelerate \
-    peft \
-    trl \
-    bitsandbytes \
-    wandb \
-    scipy
-
-CMD ["bash"]
+```text
+(worker1, rank=1) + torchrun --nproc_per_node=1 --nnodes=2 --node_rank=1 ...
+(head, rank=0)    + torchrun --nproc_per_node=1 --nnodes=2 --node_rank=0 ...
+[NCCL] Distributed training initialised
+[NCCL] World size: 2
+[NCCL] Backend: nccl
+[Done] Training complete - 10 steps finished.
+Job finished (status: SUCCEEDED)
 ```
 
-### Training Script
+The SVG above is a terminal-style capture generated from the real training log. No browser screenshots were stored locally during the cloud run.
 
-Create a file named `train.py`. This script train a small causal LM with DDP:
+## Deliverables
 
-> **Alternative models for faster testing:** 
-> `"facebook/opt-1.3b"` or `"tiiuae/falcon-7b"`
-> both are publicly available and work identically with the script.
+The assignment asks for a zip archive containing exactly these five files:
 
-### Create Docker Registry on Nebius cloud
-
-1. Navigate to **Storage → Container registry → Create registry**.
-2. Run the command that sets up the CLI as a Docker credential helper for Nebius registries:
-```
-nebius registry configure-helper
+```text
+mk8s-ng-config.json
+Dockerfile
+train.py
+train_job.yaml
+training_log.txt
 ```
 
-### Build Docker container from Dockerfile & Push to registry
+The archive itself is generated output and is not kept in the repo. Recreate it with:
 
 ```bash
-# Build from Dockerfile in the local directory
-docker build -t <registry>/nebius-trainer:v1 .
-# Push to Nebius Container Registry (or any registry your cluster can pull from)
-docker push <registry>/nebius-trainer:v1
+./run-full-project.sh package
 ```
 
-> **Hint:** Nebius Container Registry endpoint looks like:
-> `cr.<region>.nebius.cloud/<registry-id>/`
-
----
-
-## Task 2 — Create an mk8s Cluster on Nebius Cloud
-
-### Goal
-
-Provision a Nebius Managed Kubernetes (mk8s) cluster with a single nodegroup using a **1-GPU node preset**.
-
-### Steps
-
-1. Log in to the [Nebius Cloud Console](https://console.nebius.com).
-2. Navigate to **Managed Kubernetes → Clusters → Create cluster**.
-3. Configure the cluster:
-   - **Name:** choose a name for your cluster
-   - **Kubernetes version:** latest stable
-   - **Network:** default VPC
-4. Add a **Node Group**:
-   - **Name:** name for a node-group
-   - **Node preset:** `gpu-h100-b-1gpu` *(Alternatives: `gpu-l40s-1gpu` for L40S)*
-   - **Nodes:** `2`
-   - **Disk:** 100 GB SSD
-5. Create `Service Account` and add it to existing `tlv-mlops-hw1-sa` group (to allow access to container registry from nodes). Students using a public registry can skip this step.
-6. Click **Create** and wait for the cluster to reach **Running** status (~5 min).
-7. Download the kubeconfig:
+Verify its contents with:
 
 ```bash
-nebius mk8s cluster get-credentials \
-  --id <YOUR_CLUSTER_ID> \
-  --external \
-  --kubeconfig ~/.kube/config
+unzip -l nebius-ddp-submission.zip
 ```
 
-7. Verify connectivity:
+## Repository Layout
+
+```text
+.
+|-- assets/
+|   |-- ddp-architecture.png
+|   |-- ddp-pipeline.png
+|   `-- run-evidence.svg
+|-- Dockerfile
+|-- mk8s-ng-config.json
+|-- train.py
+|-- train_job.yaml
+|-- training_log.txt
+|-- run-full-project.sh
+|-- TASK.md
+|-- licence.md
+`-- README.md
+```
+
+## Important Files
+
+`Dockerfile` uses the NVIDIA PyTorch container base image and installs the Hugging Face, Datasets, Accelerate, PEFT, TRL, bitsandbytes, W&B, and SciPy dependencies used by the training job.
+
+`train.py` initializes a distributed NCCL process group, loads `facebook/opt-1.3b`, tokenizes Wikitext, and trains with Transformers `Trainer`.
+
+`train_job.yaml` is the SkyPilot task. It targets the Kubernetes context, requests `H200:1` per node, sets `num_nodes: 2`, and launches `torchrun`.
+
+`mk8s-ng-config.json` is the exported Nebius node-group metadata/spec for the successful two-node GPU node group.
+
+`training_log.txt` is the successful SkyPilot log with NCCL initialization and DDP completion.
+
+`run-full-project.sh` documents the full pipeline and provides executable subcommands for local checks, Docker image work, SkyPilot launch, log capture, packaging, and cleanup.
+
+## Local Verification
+
+Run:
 
 ```bash
-kubectl get nodes
+./run-full-project.sh verify-local
 ```
 
-### Expected Output
+This checks:
 
-```
-NAME                                 STATUS   ROLES    AGE     VERSION
-computeinstance-e00gt41yn2fpng6qzm   Ready    <none>   5m10s   v1.33.7
-computeinstance-e00r2v341f0f616jjq   Ready    <none>   4m59s   v1.33.7
-```
+1. `train.py` compiles.
+2. `mk8s-ng-config.json` is valid JSON.
+3. `training_log.txt` includes NCCL/DDP success evidence.
+4. The expected submission file list is printed if the zip exists.
 
-As delivarble from this step prepare node-group config in following format:
-```
-nebius mk8s node-group get --id <node-group-id> --format json | jq '{metadata, spec}'
-```
+## Reproducing the Cloud Run
 
----
+The full run requires Docker, Nebius CLI, kubectl, Helm, SkyPilot, a valid Nebius login, a kubeconfig for the cluster, and project access.
 
-## Task 3 — Deploy SkyPilot API Server & Connect a Client
-
-### Goal
-
-Deploy the SkyPilot API server as Nebius managed service,
-then configure the local `sky` CLI to talk to it.
-
-### Steps
-
-There's a shared pre-deployed SkyPilot API server for this homework. Endpoint is visible in the console under AI Services → SkyPilot. You may self-deploy own API server as a secondary option for students who prefer it.
-
-#### 3a. Deploy the Managed SkyPilot API Server (skip if you use shared one)
-
-1. In the Nebius AI Cloud console, go to AI Services → SkyPilot.
-2. Enter a name for the application or keep the default one.
-3. Select a Platform and a Preset (4 vCPUs and 16G RAM) for the API server VM.
-4. Click Deploy application and wait for the Public endpoint availability (~5 min).
-
-#### 3b. Install SkyPilot locally
+Print the exact step-by-step procedure:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv tool install --with pip "skypilot[nebius]"
-sky api login -e "https://<your_api_server_public_endpoint>"
-sky check nebius
+./run-full-project.sh print-steps
 ```
 
-Verify the connection:
+Selected commands:
 
 ```bash
-sky api info
-sky check kubernetes
+docker build --platform linux/amd64 -t nebius-trainer:local .
+docker tag nebius-trainer:local cr.eu-north1.nebius.cloud/e00avpz7r2gn4zffdk/nebius-trainer:v1
+docker push cr.eu-north1.nebius.cloud/e00avpz7r2gn4zffdk/nebius-trainer:v1
+
+.venv/bin/sky check kubernetes
+.venv/bin/sky launch -c ddp-run train_job.yaml -y
+.venv/bin/sky logs ddp-run > training_log.txt
 ```
 
-### Expected Output
+The full cloud run uses paid GPU resources. The SkyPilot runtime was shut down after the successful run, but the Kubernetes GPU node group must be deleted or scaled down separately to stop GPU charges.
 
-```
-$ sky check kubernetes
-🎉 Enabled infra 🎉
-  Kubernetes [compute]
-    Allowed contexts:
-    └── <your_mk8s_cluster_name>
-```
+## External References
 
----
+Official documentation:
 
-## Task 4 — Write the SkyPilot Job YAML with PyTorch DDP
+- [Nebius Managed Service for Kubernetes](https://docs.nebius.com/kubernetes)
+- [Nebius Container Registry](https://docs.nebius.com/container-registry)
+- [Nebius GPUs in Managed Kubernetes](https://docs.nebius.com/kubernetes/gpu/set-up)
+- [Nebius NCCL tests on GPU Kubernetes clusters](https://docs.nebius.com/kubernetes/gpu/nccl-test)
+- [SkyPilot YAML specification](https://docs.skypilot.co/en/latest/reference/yaml-spec.html)
+- [SkyPilot installation](https://docs.skypilot.co/en/latest/getting-started/installation.html)
+- [PyTorch DDP tutorial](https://docs.pytorch.org/tutorials/intermediate/ddp_tutorial.html)
 
-### Goal
+Popular GitHub repositories used as implementation references:
 
-Write a SkyPilot task YAML that launches the training container on your Kubernetes cluster
-using `torchrun` for DDP.
+- [skypilot-org/skypilot](https://github.com/skypilot-org/skypilot) - SkyPilot orchestration, Kubernetes support, examples, and YAML model.
+- [huggingface/transformers](https://github.com/huggingface/transformers) - model loading and `Trainer` API.
+- [pytorch/pytorch](https://github.com/pytorch/pytorch) - PyTorch and `torch.distributed`.
+- [pytorch/examples](https://github.com/pytorch/examples) - reference PyTorch training examples.
+- [NVIDIA/gpu-operator](https://github.com/NVIDIA/gpu-operator) - Kubernetes GPU operator.
+- [NVIDIA/nccl](https://github.com/NVIDIA/nccl) - collective GPU communication library used by the NCCL backend.
+- [kubeflow/trainer](https://github.com/kubeflow/training-operator) - Kubernetes-native distributed AI training reference.
 
-### `train_job.yaml`
+GitLab references:
 
-```yaml
-name: nebius-ddp-training
+- [jadnov/nebius-academy-ddp](https://gitlab.com/jadnov/nebius-academy-ddp) - assignment reference repository listed in `TASK.md`.
+- [nvidia/container-images/cuda](https://gitlab.com/nvidia/container-images/cuda) - CUDA container image reference.
+- [gitlab-org/gitlab-runner](https://gitlab.com/gitlab-org/gitlab-runner) - useful reference for CI/CD automation around packaging and validation.
 
-workdir: .
+## Visual Assets
 
-resources:
-  infra: k8s/<mk8s-cluster-name>
-  accelerators: "H100:1"
-  memory: "60+"
-  image_id: docker:cr.<region>.nebius.cloud/<registry-id>/nebius-trainer:v1
+The two PNG illustrations in `assets/` were AI-generated for this README and saved into the project:
 
-num_nodes: 2
+- `assets/ddp-architecture.png`
+- `assets/ddp-pipeline.png`
 
-envs:
-  MODEL_ID: "facebook/opt-2.7b"
-  TRAIN_SCRIPT: "train.py"
-  BLOCK_SIZE: "512"
-  PER_DEVICE_TRAIN_BATCH_SIZE: "4"
-  PER_DEVICE_EVAL_BATCH_SIZE: "4"
-  GRADIENT_ACCUMULATION_STEPS: "1"
-  DATALOADER_NUM_WORKERS: "8"
-  TOKENIZERS_PARALLELISM: "false"
-  NCCL_DEBUG: INFO
-  NCCL_DEBUG_SUBSYS: INIT,NET
-
-setup: |
-  echo "Setup complete"
-  nvidia-smi || true
-
-run: |
-  set -euxo pipefail
-
-  MASTER_ADDR=$(echo "$SKYPILOT_NODE_IPS" | head -n 1)
-  MASTER_PORT=29500
-
-  echo "SKYPILOT_NODE_RANK=${SKYPILOT_NODE_RANK}"
-  echo "SKYPILOT_NUM_NODES=${SKYPILOT_NUM_NODES}"
-  echo "SKYPILOT_NUM_GPUS_PER_NODE=${SKYPILOT_NUM_GPUS_PER_NODE}"
-  echo "SKYPILOT_NODE_IPS:"
-  echo "$SKYPILOT_NODE_IPS"
-  echo "MASTER_ADDR=${MASTER_ADDR}"
-  echo "PWD=$(pwd)"
-  test -f "${TRAIN_SCRIPT}"
-
-  torchrun \
-    --nproc_per_node=${SKYPILOT_NUM_GPUS_PER_NODE} \
-    --nnodes=${SKYPILOT_NUM_NODES} \
-    --node_rank=${SKYPILOT_NODE_RANK} \
-    --master_addr=${MASTER_ADDR} \
-    --master_port=${MASTER_PORT} \
-    "${TRAIN_SCRIPT}"
-```
-
-> **Key SkyPilot environment variables used:**
->
-> | Variable | Meaning |
-> |---|---|
-> | `SKYPILOT_NUM_GPUS_PER_NODE` | Number of GPUs on this node |
-> | `SKYPILOT_NUM_NODES` | Total nodes in the job |
-> | `SKYPILOT_NODE_RANK` | Rank of this node (0 = head) |
-> | `SKYPILOT_INTERNAL_HEAD_IP` | IP of the head node for rendezvous |
-
-> **Hint — NCCL debug logs:** Setting `NCCL_DEBUG=INFO` is essential for this homework —
-> it makes NCCL print initialisation details
-> that you need to include in your submission.
-
----
-
-## Task 5 — Run Training for 500 Steps & Collect Results
-
-### Goal
-
-Submit the job, wait for it to finish, and capture training logs with NCCL init section
-
-### 5a. Submit the job
-
-```bash
-sky launch -c ddp-run train_job.yaml
-```
-
-Watch live logs:
-
-```bash
-sky logs ddp-run
-```
-
-### 5b. Save the full log
-
-```bash
-sky logs ddp-run > training_log.txt
-```
-
-Verify the log contains NCCL init lines — look for patterns like:
-
-```
-[0] NCCL INFO Bootstrap : Using eth0:10.x.x.x<0>
-[0] NCCL INFO NET/Plugin : No plugin found, using internal net plugin
-```
-
-### 5c. Clean up
-
-```bash
-sky down ddp-run
-```
-
----
-
-## Submission Checklist
-
-| # | Item | File name |
-|---|------|-----------|
-| 1 | mk8s node-group configuration  | `mk8s-ng-config.json` |
-| 2 | Dockerfile | `Dockerfile` |
-| 3 | Training script | `train.py` |
-| 4 | SkyPilot job YAML | `train_job.yaml` |
-| 5 | Full training log (must include NCCL init) | `training_log.txt` |
-
----
-
-## Grading Criteria
-
-| Task | Points |
-|------|--------|
-| submission of results :) | 10 |
-| mk8s cluster running with correct setup of GPU nodes | 15 |
-| Dockerfile builds successfully | 15 |
-| `train.py` runs correctly | 20 |
-| `train_job.yaml` correct (torchrun + SkyPilot vars) | 20 |
-| Training log contains NCCL init section | 20 |
-| **Total** | **100** |
-
----
-
-## Useful Resources
-
-- [Nebius Cloud docs — mk8s](https://docs.nebius.com/mk8s/)
-- [Nebius Cloud docs — Container registry](https://docs.nebius.com/container-registry/quickstart)
-- [Nebius Cloud docs — SkyPilot](https://docs.nebius.com/3p-integrations/skypilot)
-- [SkyPilot documentation](https://skypilot.readthedocs.io/)
-- [PyTorch DDP tutorial](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)
-- [NCCL environment variables](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html)
-
----
+The run-evidence SVG was generated locally from `training_log.txt`.

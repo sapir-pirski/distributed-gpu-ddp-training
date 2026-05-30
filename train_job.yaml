@@ -3,16 +3,17 @@ name: nebius-ddp-training
 workdir: .
 
 resources:
-  infra: k8s/akademy-test-mk8s
-  accelerators: "H100:1"
+  infra: k8s/nebius-ddp-mk8s
+  accelerators: "H200:1"
   memory: "60+"
-  image_id: docker:cr.eu-north1.nebius.cloud/e00g98qe9694ryna8e/nebius-trainer:v3
+  image_id: docker:cr.eu-north1.nebius.cloud/e00avpz7r2gn4zffdk/nebius-trainer:v1
 
 num_nodes: 2
 
 envs:
-  MODEL_ID: "facebook/opt-2.7b"
+  MODEL_ID: "facebook/opt-1.3b"
   TRAIN_SCRIPT: "train.py"
+  MAX_STEPS: "10"
   BLOCK_SIZE: "512"
   PER_DEVICE_TRAIN_BATCH_SIZE: "4"
   PER_DEVICE_EVAL_BATCH_SIZE: "4"

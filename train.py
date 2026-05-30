@@ -52,13 +52,14 @@ def main():
     model = model.to(local_rank)
 
     # ── Dataset ────────────────────────────────────────────────────────
-    train_dataset = load_dataset("wikitext", "wikitext-2-v1", split="train")
-    eval_dataset = load_dataset("wikitext", "wikitext-2-v1", split="validation")
+    train_dataset = load_dataset("Salesforce/wikitext", "wikitext-2-v1", split="train")
+    eval_dataset = load_dataset("Salesforce/wikitext", "wikitext-2-v1", split="validation")
     block_size = min(int(os.environ.get("BLOCK_SIZE", 512)), tokenizer.model_max_length)
     per_device_train_batch_size = int(os.environ.get("PER_DEVICE_TRAIN_BATCH_SIZE", 8))
     per_device_eval_batch_size = int(os.environ.get("PER_DEVICE_EVAL_BATCH_SIZE", 8))
     gradient_accumulation_steps = int(os.environ.get("GRADIENT_ACCUMULATION_STEPS", 1))
     dataloader_num_workers = int(os.environ.get("DATALOADER_NUM_WORKERS", 8))
+    max_steps = int(os.environ.get("MAX_STEPS", 500))
 
     def tokenize(examples):
         texts = [text for text in examples["text"] if text and not text.isspace()]
@@ -107,7 +108,7 @@ def main():
     # ── Training ───────────────────────────────────────────────────────
     args = TrainingArguments(
         output_dir="/tmp/output",
-        max_steps=500,
+        max_steps=max_steps,
         per_device_train_batch_size=per_device_train_batch_size,
         per_device_eval_batch_size=per_device_eval_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,

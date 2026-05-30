@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "id": "mk8snodegroup-e00bcab74e3vwqwt50",
+    "parent_id": "mk8scluster-e00gtp60n9mh1n1kva",
+    "name": "nebius-ddp-h200-ng",
+    "resource_version": "1",
+    "created_at": "2026-05-30T13:26:55Z",
+    "updated_at": "2026-05-30T13:26:55Z"
+  },
+  "spec": {
+    "version": "1.33",
+    "fixed_node_count": "2",
+    "template": {
+      "resources": {
+        "platform": "gpu-h200-sxm",
+        "preset": "1gpu-16vcpu-200gb"
+      },
+      "boot_disk": {
+        "size_gibibytes": "100",
+        "type": "NETWORK_SSD"
+      },
+      "network_interfaces": [
+        {
+          "public_ip_address": {},
+          "subnet_id": "vpcsubnet-e00dzr863hcd13e9t1"
+        }
+      ],
+      "service_account_id": "serviceaccount-e00a110f0yh47as1ch"
+    }
+  }
+}

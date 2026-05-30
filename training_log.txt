@@ -1,0 +1,234 @@
+Tailing logs of job 2 on cluster 'ddp-run'...
+├── Waiting for task resources on 2 nodes.
+└── Job started. Streaming logs... (Ctrl-C to exit log streaming; job will not be killed)
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ++ head -n 1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ++ echo '10.4.54.78
+(worker1, rank=1, pid=4384, ip=10.4.55.142) 10.4.55.142'
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + MASTER_ADDR=10.4.54.78
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + MASTER_PORT=29500
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo SKYPILOT_NODE_RANK=1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) SKYPILOT_NODE_RANK=1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo SKYPILOT_NUM_NODES=2
+(worker1, rank=1, pid=4384, ip=10.4.55.142) SKYPILOT_NUM_NODES=2
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo SKYPILOT_NUM_GPUS_PER_NODE=1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) SKYPILOT_NUM_GPUS_PER_NODE=1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo SKYPILOT_NODE_IPS:
+(worker1, rank=1, pid=4384, ip=10.4.55.142) SKYPILOT_NODE_IPS:
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo '10.4.54.78
+(worker1, rank=1, pid=4384, ip=10.4.55.142) 10.4.55.142'
+(worker1, rank=1, pid=4384, ip=10.4.55.142) 10.4.54.78
+(worker1, rank=1, pid=4384, ip=10.4.55.142) 10.4.55.142
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo MASTER_ADDR=10.4.54.78
+(worker1, rank=1, pid=4384, ip=10.4.55.142) MASTER_ADDR=10.4.54.78
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ++ pwd
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + echo PWD=/root/sky_workdir
+(worker1, rank=1, pid=4384, ip=10.4.55.142) PWD=/root/sky_workdir
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + test -f train.py
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + torchrun --nproc_per_node=1 --nnodes=2 --node_rank=1 --master_addr=10.4.54.78 --master_port=29500 train.py
+(head, rank=0, pid=4812) ++ echo '10.4.54.78
+(head, rank=0, pid=4812) 10.4.55.142'
+(head, rank=0, pid=4812) ++ head -n 1
+(head, rank=0, pid=4812) + MASTER_ADDR=10.4.54.78
+(head, rank=0, pid=4812) + MASTER_PORT=29500
+(head, rank=0, pid=4812) + echo SKYPILOT_NODE_RANK=0
+(head, rank=0, pid=4812) SKYPILOT_NODE_RANK=0
+(head, rank=0, pid=4812) + echo SKYPILOT_NUM_NODES=2
+(head, rank=0, pid=4812) SKYPILOT_NUM_NODES=2
+(head, rank=0, pid=4812) + echo SKYPILOT_NUM_GPUS_PER_NODE=1
+(head, rank=0, pid=4812) SKYPILOT_NUM_GPUS_PER_NODE=1
+(head, rank=0, pid=4812) + echo SKYPILOT_NODE_IPS:
+(head, rank=0, pid=4812) SKYPILOT_NODE_IPS:
+(head, rank=0, pid=4812) + echo '10.4.54.78
+(head, rank=0, pid=4812) 10.4.55.142'
+(head, rank=0, pid=4812) 10.4.54.78
+(head, rank=0, pid=4812) 10.4.55.142
+(head, rank=0, pid=4812) + echo MASTER_ADDR=10.4.54.78
+(head, rank=0, pid=4812) MASTER_ADDR=10.4.54.78
+(head, rank=0, pid=4812) ++ pwd
+(head, rank=0, pid=4812) + echo PWD=/root/sky_workdir
+(head, rank=0, pid=4812) PWD=/root/sky_workdir
+(head, rank=0, pid=4812) + test -f train.py
+(head, rank=0, pid=4812) + torchrun --nproc_per_node=1 --nnodes=2 --node_rank=0 --master_addr=10.4.54.78 --master_port=29500 train.py
+(worker1, rank=1, pid=4384, ip=10.4.55.142) /usr/local/lib/python3.12/dist-packages/torch/library.py:356: UserWarning: Warning only once for all operators,  other operators may also be overridden.
+(worker1, rank=1, pid=4384, ip=10.4.55.142)   Overriding a previously registered kernel for the same operator and the same dispatch key
+(worker1, rank=1, pid=4384, ip=10.4.55.142)   operator: flash_attn::_flash_attn_backward(Tensor dout, Tensor q, Tensor k, Tensor v, Tensor out, Tensor softmax_lse, Tensor(a6!)? dq, Tensor(a7!)? dk, Tensor(a8!)? dv, float dropout_p, float softmax_scale, bool causal, SymInt window_size_left, SymInt window_size_right, float softcap, Tensor? alibi_slopes, bool deterministic, Tensor? rng_state=None) -> Tensor
+(worker1, rank=1, pid=4384, ip=10.4.55.142)     registered at /usr/local/lib/python3.12/dist-packages/torch/_library/custom_ops.py:922
+(worker1, rank=1, pid=4384, ip=10.4.55.142)   dispatch key: ADInplaceOrView
+(worker1, rank=1, pid=4384, ip=10.4.55.142)   previous kernel: no debug info
+(worker1, rank=1, pid=4384, ip=10.4.55.142)        new kernel: registered at /usr/local/lib/python3.12/dist-packages/torch/_library/custom_ops.py:922 (Triggered internally at /opt/pytorch/pytorch/aten/src/ATen/core/dispatch/OperatorEntry.cpp:208.)
+(worker1, rank=1, pid=4384, ip=10.4.55.142)   self.m.impl(
+(worker1, rank=1, pid=4384, ip=10.4.55.142) [Rank 1] Loading model: facebook/opt-1.3b
+(head, rank=0, pid=4812) /usr/local/lib/python3.12/dist-packages/torch/library.py:356: UserWarning: Warning only once for all operators,  other operators may also be overridden.
+(head, rank=0, pid=4812)   Overriding a previously registered kernel for the same operator and the same dispatch key
+(head, rank=0, pid=4812)   operator: flash_attn::_flash_attn_backward(Tensor dout, Tensor q, Tensor k, Tensor v, Tensor out, Tensor softmax_lse, Tensor(a6!)? dq, Tensor(a7!)? dk, Tensor(a8!)? dv, float dropout_p, float softmax_scale, bool causal, SymInt window_size_left, SymInt window_size_right, float softcap, Tensor? alibi_slopes, bool deterministic, Tensor? rng_state=None) -> Tensor
+(head, rank=0, pid=4812)     registered at /usr/local/lib/python3.12/dist-packages/torch/_library/custom_ops.py:922
+(head, rank=0, pid=4812)   dispatch key: ADInplaceOrView
+(head, rank=0, pid=4812)   previous kernel: no debug info
+(head, rank=0, pid=4812)        new kernel: registered at /usr/local/lib/python3.12/dist-packages/torch/_library/custom_ops.py:922 (Triggered internally at /opt/pytorch/pytorch/aten/src/ATen/core/dispatch/OperatorEntry.cpp:208.)
+(head, rank=0, pid=4812)   self.m.impl(
+(worker1, rank=1, pid=4384, ip=10.4.55.142) Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+(head, rank=0, pid=4812) [NCCL] Distributed training initialised
+(head, rank=0, pid=4812) [NCCL] World size: 2
+(head, rank=0, pid=4812) [NCCL] Backend: nccl
+(head, rank=0, pid=4812) [NCCL] Master addr: 10.4.54.78
+(head, rank=0, pid=4812) [NCCL] Master port: 29500
+(head, rank=0, pid=4812) [Rank 0] Loading model: facebook/opt-1.3b
+(head, rank=0, pid=4812) Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+(worker1, rank=1, pid=4384, ip=10.4.55.142) /usr/local/lib/python3.12/dist-packages/transformers/models/gpt2/tokenization_gpt2.py:110: DeprecationWarning: Deprecated in 0.9.0: BPE.__init__ will not create from files anymore, try `BPE.from_file` instead
+(worker1, rank=1, pid=4384, ip=10.4.55.142)   BPE(
+(head, rank=0, pid=4812) /usr/local/lib/python3.12/dist-packages/transformers/models/gpt2/tokenization_gpt2.py:110: DeprecationWarning: Deprecated in 0.9.0: BPE.__init__ will not create from files anymore, try `BPE.from_file` instead
+(head, rank=0, pid=4812)   BPE(
+(worker1, rank=1, pid=4384, ip=10.4.55.142) Loading weights:   0%|          | 0/389 [00:00<?, ?it/s]Loading weights: 100%|██████████| 389/389 [00:00<00:00, 59364.88it/s]
+(head, rank=0, pid=4812) Loading weights:   0%|          | 0/389 [00:00<?, ?it/s]Loading weights: 100%|██████████| 389/389 [00:00<00:00, 49516.97it/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) Generating test split:   0%|          | 0/4358 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 4358/4358 [00:00<00:00, 644754.03 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) Generating train split:   0%|          | 0/36718 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 36718/36718 [00:00<00:00, 1325117.27 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) Generating validation split:   0%|          | 0/3760 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 3760/3760 [00:00<00:00, 1047113.94 examples/s]
+(head, rank=0, pid=4812) Generating test split:   0%|          | 0/4358 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 4358/4358 [00:00<00:00, 583818.61 examples/s]
+(head, rank=0, pid=4812) Generating train split:   0%|          | 0/36718 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 36718/36718 [00:00<00:00, 1349536.92 examples/s]
+(head, rank=0, pid=4812) Generating validation split:   0%|          | 0/3760 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 3760/3760 [00:00<00:00, 873668.11 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) (worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:   0%|          | 0/36718 [00:00<?, ? examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:   3%|▎         | 1000/36718 [00:00<00:04, 8050.13 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:   5%|▌         | 2000/36718 [00:00<00:04, 7352.52 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:   8%|▊         | 3000/36718 [00:00<00:04, 8200.09 examples/s](head, rank=0, pid=4812) (head, rank=0, pid=4812) Tokenizing train dataset:   0%|          | 0/36718 [00:00<?, ? examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  11%|█         | 4000/36718 [00:00<00:03, 8571.29 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:   3%|▎         | 1000/36718 [00:00<00:04, 7516.42 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  16%|█▋        | 6000/36718 [00:00<00:03, 9291.91 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  19%|█▉        | 7000/36718 [00:00<00:03, 8744.60 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:   5%|▌         | 2000/36718 [00:00<00:04, 7218.98 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  22%|██▏       | 8000/36718 [00:00<00:03, 8725.22 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:   8%|▊         | 3000/36718 [00:00<00:04, 7851.21 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  25%|██▍       | 9000/36718 [00:01<00:03, 8910.61 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  11%|█         | 4000/36718 [00:00<00:04, 8037.14 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  27%|██▋       | 10000/36718 [00:01<00:02, 9002.14 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  14%|█▎        | 5000/36718 [00:00<00:03, 8451.56 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  30%|██▉       | 11000/36718 [00:01<00:02, 8985.77 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  16%|█▋        | 6000/36718 [00:00<00:03, 8653.43 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  33%|███▎      | 12000/36718 [00:01<00:02, 9079.95 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  19%|█▉        | 7000/36718 [00:00<00:03, 8010.44 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  35%|███▌      | 13000/36718 [00:01<00:02, 9015.29 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  38%|███▊      | 14000/36718 [00:01<00:02, 9245.26 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  22%|██▏       | 8000/36718 [00:01<00:03, 7894.55 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  41%|████      | 15000/36718 [00:01<00:02, 9376.16 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  25%|██▍       | 9000/36718 [00:01<00:03, 7955.22 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  44%|████▎     | 16000/36718 [00:01<00:02, 8998.20 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  27%|██▋       | 10000/36718 [00:01<00:03, 8000.14 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  30%|██▉       | 11000/36718 [00:01<00:03, 7974.09 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  46%|████▋     | 17000/36718 [00:01<00:02, 8984.38 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  49%|████▉     | 18000/36718 [00:02<00:02, 9105.49 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  33%|███▎      | 12000/36718 [00:01<00:03, 8049.00 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  52%|█████▏    | 19000/36718 [00:02<00:01, 9272.24 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  35%|███▌      | 13000/36718 [00:01<00:02, 7945.63 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  54%|█████▍    | 20000/36718 [00:02<00:01, 9367.36 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  38%|███▊      | 14000/36718 [00:01<00:02, 8099.53 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  57%|█████▋    | 21000/36718 [00:02<00:01, 9120.13 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  41%|████      | 15000/36718 [00:01<00:02, 8282.60 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  60%|█████▉    | 22000/36718 [00:02<00:01, 9028.00 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  44%|████▎     | 16000/36718 [00:01<00:02, 8013.67 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  63%|██████▎   | 23000/36718 [00:02<00:01, 9235.12 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  46%|████▋     | 17000/36718 [00:02<00:02, 8070.38 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  68%|██████▊   | 25000/36718 [00:02<00:01, 9732.25 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  49%|████▉     | 18000/36718 [00:02<00:02, 8209.07 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  71%|███████   | 26000/36718 [00:02<00:01, 9609.74 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  52%|█████▏    | 19000/36718 [00:02<00:02, 8369.44 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  74%|███████▎  | 27000/36718 [00:02<00:01, 9223.91 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  54%|█████▍    | 20000/36718 [00:02<00:01, 8418.82 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  76%|███████▋  | 28000/36718 [00:03<00:00, 9022.49 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  57%|█████▋    | 21000/36718 [00:02<00:01, 8263.90 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  82%|████████▏ | 30000/36718 [00:03<00:00, 9398.56 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  60%|█████▉    | 22000/36718 [00:02<00:01, 8119.75 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  63%|██████▎   | 23000/36718 [00:02<00:01, 8328.32 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  84%|████████▍ | 31000/36718 [00:03<00:00, 8924.30 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  65%|██████▌   | 24000/36718 [00:02<00:01, 8724.42 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  87%|████████▋ | 32000/36718 [00:03<00:00, 8845.57 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  68%|██████▊   | 25000/36718 [00:03<00:01, 8953.87 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  71%|███████   | 26000/36718 [00:03<00:01, 8771.71 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  74%|███████▎  | 27000/36718 [00:03<00:01, 8361.80 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  90%|████████▉ | 33000/36718 [00:03<00:00, 8750.30 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  93%|█████████▎| 34000/36718 [00:03<00:00, 6207.45 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  76%|███████▋  | 28000/36718 [00:03<00:01, 8148.45 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  95%|█████████▌| 35000/36718 [00:04<00:00, 6860.02 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  79%|███████▉  | 29000/36718 [00:03<00:00, 8424.91 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing train dataset:  98%|█████████▊| 36000/36718 [00:04<00:00, 7214.85 examples/s]Tokenizing train dataset: 100%|██████████| 36718/36718 [00:04<00:00, 8621.22 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) (head, rank=0, pid=4812) Tokenizing train dataset:  82%|████████▏ | 30000/36718 [00:03<00:00, 8444.48 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:   0%|          | 0/23767 [00:00<?, ? examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  84%|████████▍ | 31000/36718 [00:03<00:00, 7949.53 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:   8%|▊         | 2000/23767 [00:00<00:01, 13086.61 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  87%|████████▋ | 32000/36718 [00:03<00:00, 7912.84 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  17%|█▋        | 4000/23767 [00:00<00:01, 13767.52 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  25%|██▌       | 6000/23767 [00:00<00:01, 13331.85 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  90%|████████▉ | 33000/36718 [00:04<00:00, 7966.62 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  34%|███▎      | 8000/23767 [00:00<00:01, 13263.56 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  93%|█████████▎| 34000/36718 [00:04<00:00, 5233.97 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  95%|█████████▌| 35000/36718 [00:04<00:00, 5990.90 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  42%|████▏     | 10000/23767 [00:00<00:01, 13270.68 examples/s](head, rank=0, pid=4812) Tokenizing train dataset:  98%|█████████▊| 36000/36718 [00:04<00:00, 6434.14 examples/s]Tokenizing train dataset: 100%|██████████| 36718/36718 [00:04<00:00, 7786.55 examples/s]
+(head, rank=0, pid=4812) (worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  50%|█████     | 12000/23767 [00:00<00:00, 13110.58 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  59%|█████▉    | 14000/23767 [00:01<00:00, 13233.84 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:   0%|          | 0/23767 [00:00<?, ? examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:   8%|▊         | 2000/23767 [00:00<00:01, 13943.11 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  67%|██████▋   | 16000/23767 [00:01<00:00, 13790.79 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  17%|█▋        | 4000/23767 [00:00<00:01, 14358.27 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  76%|███████▌  | 18000/23767 [00:01<00:00, 13327.18 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  25%|██▌       | 6000/23767 [00:00<00:01, 13863.73 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  84%|████████▍ | 20000/23767 [00:01<00:00, 13418.26 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  34%|███▎      | 8000/23767 [00:00<00:01, 13887.03 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing tokens into 512-token blocks:  93%|█████████▎| 22000/23767 [00:01<00:00, 13092.96 examples/s]Packing tokens into 512-token blocks: 100%|██████████| 23767/23767 [00:01<00:00, 12872.59 examples/s]Packing tokens into 512-token blocks: 100%|██████████| 23767/23767 [00:01<00:00, 13144.33 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) (head, rank=0, pid=4812) Packing tokens into 512-token blocks:  42%|████▏     | 10000/23767 [00:00<00:00, 13786.38 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing validation dataset:   0%|          | 0/3760 [00:00<?, ? examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  50%|█████     | 12000/23767 [00:00<00:00, 13598.62 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing validation dataset:  27%|██▋       | 1000/3760 [00:00<00:00, 9447.14 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing validation dataset:  53%|█████▎    | 2000/3760 [00:00<00:00, 8490.85 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  59%|█████▉    | 14000/23767 [00:01<00:00, 13676.36 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Tokenizing validation dataset:  80%|███████▉  | 3000/3760 [00:00<00:00, 8511.76 examples/s]Tokenizing validation dataset: 100%|██████████| 3760/3760 [00:00<00:00, 8604.39 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) (head, rank=0, pid=4812) Packing tokens into 512-token blocks:  67%|██████▋   | 16000/23767 [00:01<00:00, 14217.86 examples/s](worker1, rank=1, pid=4384, ip=10.4.55.142) Packing validation tokens into 512-token blocks:   0%|          | 0/2461 [00:00<?, ? examples/s]Packing validation tokens into 512-token blocks:  81%|████████▏ | 2000/2461 [00:00<00:00, 13156.50 examples/s]Packing validation tokens into 512-token blocks: 100%|██████████| 2461/2461 [00:00<00:00, 12899.78 examples/s]
+(worker1, rank=1, pid=4384, ip=10.4.55.142) [transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+(head, rank=0, pid=4812) Packing tokens into 512-token blocks:  76%|███████▌  | 18000/23767 [00:01<00:00, 13874.53 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  84%|████████▍ | 20000/23767 [00:01<00:00, 13992.55 examples/s](head, rank=0, pid=4812) Packing tokens into 512-token blocks:  93%|█████████▎| 22000/23767 [00:01<00:00, 13645.81 examples/s]Packing tokens into 512-token blocks: 100%|██████████| 23767/23767 [00:01<00:00, 13589.57 examples/s]Packing tokens into 512-token blocks: 100%|██████████| 23767/23767 [00:01<00:00, 13763.15 examples/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812) Tokenizing validation dataset:   0%|          | 0/3760 [00:00<?, ? examples/s](head, rank=0, pid=4812) Tokenizing validation dataset:  27%|██▋       | 1000/3760 [00:00<00:00, 8999.22 examples/s](head, rank=0, pid=4812) Tokenizing validation dataset:  53%|█████▎    | 2000/3760 [00:00<00:00, 8154.10 examples/s](head, rank=0, pid=4812) Tokenizing validation dataset:  80%|███████▉  | 3000/3760 [00:00<00:00, 8033.66 examples/s]Tokenizing validation dataset: 100%|██████████| 3760/3760 [00:00<00:00, 8120.52 examples/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812) Packing validation tokens into 512-token blocks:   0%|          | 0/2461 [00:00<?, ? examples/s]Packing validation tokens into 512-token blocks:  81%|████████▏ | 2000/2461 [00:00<00:00, 13563.18 examples/s]Packing validation tokens into 512-token blocks: 100%|██████████| 2461/2461 [00:00<00:00, 13468.88 examples/s]
+(head, rank=0, pid=4812) [transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO cudaDriverVersion 13010
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO cudaDriverVersion 13010
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/Plugin: Loaded net plugin NCCL RDMA Plugin v11 (v11)
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/Plugin: Loaded collnet plugin SHARP (v11)
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Successfully loaded external network plugin /opt/hpcx/nccl_rdma_sharp_plugin/lib/libnccl-net.so
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Plugin Path : /opt/hpcx/nccl_rdma_sharp_plugin/lib/libnccl-net.so
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO P2P plugin v11 IBext_v11
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/IB : No device found.
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/IB : Using [RO]; OOB eth0:10.4.55.142<0>
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Failed to initialize NET plugin IBext_v11
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/IB : No device found.
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/IB : Using [RO]; OOB eth0:10.4.55.142<0>
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Failed to initialize NET plugin IB
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/Socket : Using [0]eth0:10.4.55.142<0>
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Initialized NET plugin Socket
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Assigned NET plugin Socket to comm
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Using network Socket
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO ncclCommInitRankConfig comm 0x4e989700 rank 1 nranks 2 cudaDev 0 nvmlDev 0 busId 8d000 commId 0xdb47c728197e0e6e - Init START
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO RAS client listening socket at ::1<28028>
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/Plugin: Loaded net plugin NCCL RDMA Plugin v11 (v11)
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/Plugin: Loaded collnet plugin SHARP (v11)
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Successfully loaded external network plugin /opt/hpcx/nccl_rdma_sharp_plugin/lib/libnccl-net.so
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Plugin Path : /opt/hpcx/nccl_rdma_sharp_plugin/lib/libnccl-net.so
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO P2P plugin v11 IBext_v11
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/IB : No device found.
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/IB : Using [RO]; OOB eth0:10.4.54.78<0>
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Failed to initialize NET plugin IBext_v11
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/IB : No device found.
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/IB : Using [RO]; OOB eth0:10.4.54.78<0>
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Failed to initialize NET plugin IB
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/Socket : Using [0]eth0:10.4.54.78<0>
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Initialized NET plugin Socket
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Assigned NET plugin Socket to comm
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Using network Socket
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO ncclCommInitRankConfig comm 0x431a5760 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 8d000 commId 0xdb47c728197e0e6e - Init START
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO RAS client listening socket at ::1<28028>
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO NET/Socket : GPU Direct RDMA Disabled for HCA 0 'eth0'
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is 0-15. (GPU affinity = 0-15 ; CPU affinity = 0-15).
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO comm 0x431a5760 rank 0 nRanks 2 nNodes 2 localRanks 1 localRank 0 MNNVL 0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Channel 00/02 : 0 1
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Channel 01/02 : 0 1
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] -1/-1/-1->0->1
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO P2P Chunksize set to 131072
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Check P2P Type isAllDirectP2p 1 directMode 0 isAllCudaP2p 1
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51334 [0] NCCL INFO [Proxy Service] Device 0 CPU core 8
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51335 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 4
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO CC Off, workFifoBytes 1048576
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO ncclCommInitRankConfig comm 0x431a5760 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 8d000 commId 0xdb47c728197e0e6e - Init COMPLETE
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.26 (kernels 0.24, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.00, graphs 0.00, connections 0.00, rest 0.00)
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO NET/Socket : GPU Direct RDMA Disabled for HCA 0 'eth0'
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is 0-15. (GPU affinity = 0-15 ; CPU affinity = 0-15).
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO comm 0x4e989700 rank 1 nRanks 2 nNodes 2 localRanks 1 localRank 0 MNNVL 0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] 0/-1/-1->1->-1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO P2P Chunksize set to 131072
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Check P2P Type isAllDirectP2p 1 directMode 0 isAllCudaP2p 1
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43500 [0] NCCL INFO [Proxy Service] Device 0 CPU core 14
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43501 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO ncclCommInitRankConfig comm 0x4e989700 rank 1 nranks 2 cudaDev 0 nvmlDev 0 busId 8d000 commId 0xdb47c728197e0e6e - Init COMPLETE
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.26 (kernels 0.23, alloc 0.00, bootstrap 0.02, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43500 [0] NCCL INFO New proxy recv connection 0 from local rank 0, transport 2
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43510 [0] NCCL INFO [Proxy Progress] Device 0 CPU core 10
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x71664000e0a0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Channel 00/0 : 0[0] -> 1[0] [receive] via NET/Socket/0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43500 [0] NCCL INFO New proxy recv connection 1 from local rank 0, transport 2
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x71664000e118
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Channel 01/0 : 0[0] -> 1[0] [receive] via NET/Socket/0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43500 [0] NCCL INFO New proxy send connection 2 from local rank 0, transport 2
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x71664000e190
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Channel 00/0 : 1[0] -> 0[0] [send] via NET/Socket/0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:43500 [0] NCCL INFO New proxy send connection 3 from local rank 0, transport 2
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x71664000e208
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Channel 01/0 : 1[0] -> 0[0] [send] via NET/Socket/0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51334 [0] NCCL INFO New proxy recv connection 0 from local rank 0, transport 2
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51336 [0] NCCL INFO [Proxy Progress] Device 0 CPU core 0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x7b6b8400e0a0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Channel 00/0 : 1[0] -> 0[0] [receive] via NET/Socket/0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51334 [0] NCCL INFO New proxy recv connection 1 from local rank 0, transport 2
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x7b6b8400e118
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Channel 01/0 : 1[0] -> 0[0] [receive] via NET/Socket/0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51334 [0] NCCL INFO New proxy send connection 2 from local rank 0, transport 2
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x7b6b8400e190
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Channel 00/0 : 0[0] -> 1[0] [send] via NET/Socket/0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:51334 [0] NCCL INFO New proxy send connection 3 from local rank 0, transport 2
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Connected to proxy localRank 0 -> connection 0x7b6b8400e208
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Channel 01/0 : 0[0] -> 1[0] [send] via NET/Socket/0
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 0
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)   0%|          | 0/10 [00:00<?, ?it/s](head, rank=0, pid=4812)  10%|█         | 1/10 [00:03<00:32,  3.62s/it](head, rank=0, pid=4812)  20%|██        | 2/10 [00:06<00:23,  2.91s/it](head, rank=0, pid=4812)  30%|███       | 3/10 [00:08<00:18,  2.66s/it](head, rank=0, pid=4812)  40%|████      | 4/10 [00:10<00:15,  2.53s/it](head, rank=0, pid=4812)  50%|█████     | 5/10 [00:13<00:12,  2.51s/it](head, rank=0, pid=4812)  60%|██████    | 6/10 [00:15<00:09,  2.48s/it](head, rank=0, pid=4812)  70%|███████   | 7/10 [00:18<00:07,  2.45s/it](head, rank=0, pid=4812)  80%|████████  | 8/10 [00:20<00:04,  2.47s/it](head, rank=0, pid=4812)  90%|█████████ | 9/10 [00:22<00:02,  2.44s/it]100%|██████████| 10/10 [00:25<00:00,  2.41s/it]                                               {'loss': '8.061', 'grad_norm': '34.44', 'learning_rate': '6.031e-08', 'epoch': '0.01678'}
+(head, rank=0, pid=4812) (head, rank=0, pid=4812) 100%|██████████| 10/10 [00:25<00:00,  2.41s/it]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)   0%|          | 0/63 [00:00<?, ?it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  11%|█         | 7/63 [00:00<00:00, 66.00it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  22%|██▏       | 14/63 [00:00<00:00, 59.15it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  32%|███▏      | 20/63 [00:00<00:00, 57.87it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  41%|████▏     | 26/63 [00:00<00:00, 56.63it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  51%|█████     | 32/63 [00:00<00:00, 56.33it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  60%|██████    | 38/63 [00:00<00:00, 55.89it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  70%|██████▉   | 44/63 [00:00<00:00, 55.78it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  79%|███████▉  | 50/63 [00:00<00:00, 55.42it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  89%|████████▉ | 56/63 [00:00<00:00, 54.76it/s]
+(head, rank=0, pid=4812) (head, rank=0, pid=4812)  98%|█████████▊| 62/63 [00:01<00:00, 55.35it/s]
+(head, rank=0, pid=4812)                                                {'eval_loss': '8.81', 'eval_runtime': '1.707', 'eval_samples_per_second': '295.3', 'eval_steps_per_second': '36.91', 'epoch': '0.01678'}
+(head, rank=0, pid=4812) 100%|██████████| 10/10 [00:26<00:00,  2.41s/it]
+(head, rank=0, pid=4812) 100%|██████████| 63/63 [00:01<00:00, 55.35it/s]
+(head, rank=0, pid=4812)
+(head, rank=0, pid=4812) (head, rank=0, pid=4812) Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]
+(head, rank=0, pid=4812) Writing model shards: 100%|██████████| 1/1 [00:03<00:00,  3.90s/it]Writing model shards: 100%|██████████| 1/1 [00:03<00:00,  3.90s/it]
+(head, rank=0, pid=4812)                                                {'train_runtime': '37.76', 'train_samples_per_second': '2.119', 'train_steps_per_second': '0.265', 'train_loss': '8.061', 'epoch': '0.01678'}
+(head, rank=0, pid=4812) 100%|██████████| 10/10 [00:36<00:00,  2.41s/it]100%|██████████| 10/10 [00:36<00:00,  3.68s/it]
+(head, rank=0, pid=4812) [Done] Training complete — 10 steps finished.
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO comm 0x431a5760 rank 0 nranks 2 cudaDev 0 busId 8d000 - Destroy COMPLETE
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO comm 0x4e989700 rank 1 nranks 2 cudaDev 0 busId 8d000 - Destroy COMPLETE
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ddp-run-d82dcf60-worker1:40633:40633 [0] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
+(head, rank=0, pid=4812) ddp-run-d82dcf60-head:47810:47810 [0] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + __skypilot_user_exit_code=0
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ++ findmnt -t fuse.rclone --noheading
+(worker1, rank=1, pid=4384, ip=10.4.55.142) ++ wc -l
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + '[' 0 -gt 0 ']'
+(worker1, rank=1, pid=4384, ip=10.4.55.142) + exit 0
+(head, rank=0, pid=4812) + __skypilot_user_exit_code=0
+(head, rank=0, pid=4812) ++ findmnt -t fuse.rclone --noheading
+(head, rank=0, pid=4812) ++ wc -l
+(head, rank=0, pid=4812) + '[' 0 -gt 0 ']'
+(head, rank=0, pid=4812) + exit 0
+✓ Job finished (status: SUCCEEDED).
