@@ -93,6 +93,7 @@ training_log.txt
 |   |-- ddp-pipeline.png
 |   `-- run-evidence.svg
 |-- Dockerfile
+|-- requirements.txt
 |-- mk8s-ng-config.json
 |-- train.py
 |-- train_job.yaml
@@ -105,7 +106,9 @@ training_log.txt
 
 ## Important Files
 
-`Dockerfile` uses the NVIDIA PyTorch container base image and installs the Hugging Face, Datasets, Accelerate, PEFT, TRL, bitsandbytes, W&B, and SciPy dependencies used by the training job.
+`Dockerfile` uses the NVIDIA PyTorch container base image and installs the pinned Python dependencies from `requirements.txt`.
+
+`requirements.txt` pins the Hugging Face, Datasets, Accelerate, PEFT, TRL, bitsandbytes, W&B, and SciPy versions extracted from the successful training image. PyTorch, CUDA, and NCCL are provided by the NVIDIA base image.
 
 `train.py` initializes a distributed NCCL process group, loads `facebook/opt-1.3b`, tokenizes Wikitext, and trains with Transformers `Trainer`.
 

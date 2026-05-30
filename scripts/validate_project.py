@@ -27,9 +27,10 @@ def fail(message: str) -> None:
 
 
 def require_files() -> None:
-    missing = [name for name in REQUIRED_SUBMISSION_FILES if not Path(name).is_file()]
+    repo_required_files = REQUIRED_SUBMISSION_FILES + ["requirements.txt"]
+    missing = [name for name in repo_required_files if not Path(name).is_file()]
     if missing:
-        fail(f"missing required submission files: {', '.join(missing)}")
+        fail(f"missing required project files: {', '.join(missing)}")
 
 
 def validate_node_group_config() -> None:
@@ -77,6 +78,28 @@ def validate_train_job() -> None:
             fail(f"train_job.yaml run block is missing {expected}")
 
 
+def validate_dockerfile() -> None:
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+    if "COPY requirements.txt" not in dockerfile:
+        fail("Dockerfile must copy requirements.txt")
+    if "-r requirements.txt" not in dockerfile:
+        fail("Dockerfile must install pinned dependencies from requirements.txt")
+
+    requirements = Path("requirements.txt").read_text(encoding="utf-8")
+    for package in (
+        "transformers",
+        "datasets",
+        "accelerate",
+        "peft",
+        "trl",
+        "bitsandbytes",
+        "wandb",
+        "scipy",
+    ):
+        if f"{package}==" not in requirements:
+            fail(f"requirements.txt must pin {package} with ==")
+
+
 def validate_training_log() -> None:
     log = Path("training_log.txt").read_text(encoding="utf-8", errors="replace")
     for expected in (
@@ -115,6 +138,7 @@ def main() -> None:
     args = parser.parse_args()
 
     require_files()
+    validate_dockerfile()
     validate_node_group_config()
     validate_train_job()
     validate_training_log()
