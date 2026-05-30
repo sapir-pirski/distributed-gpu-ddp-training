@@ -23,6 +23,42 @@ The successful run used two separate H200 GPU nodes, one GPU per node, with `tor
 | Launcher | SkyPilot on Kubernetes |
 | Final status | `SUCCEEDED` |
 
+## Cost And Cleanup
+
+This project provisions paid cloud resources. The most expensive resource is the two-node H200 GPU node group used for DDP training, but the Kubernetes cluster, registry image storage, disks, and SkyPilot runtime can also leave billable resources behind.
+
+`cleanup-sky` only shuts down the SkyPilot runtime:
+
+```bash
+./run-full-project.sh cleanup-sky
+```
+
+To delete the cloud resources configured for this project, use the guarded cleanup command:
+
+```bash
+CONFIRM_DELETE_CLOUD=1 ./run-full-project.sh cleanup-cloud
+```
+
+The confirmation flag is required because this command deletes real cloud resources: the SkyPilot runtime, Kubernetes cluster, GPU node group, registry artifacts, and registry configured by the IDs at the top of `run-full-project.sh`.
+
+Verify cleanup with:
+
+```bash
+./run-full-project.sh verify-cloud-cleanup
+```
+
+Expected result:
+
+```text
+No SkyPilot clusters
+No Kubernetes clusters
+No container registries
+No compute instances
+No compute disks
+```
+
+`cleanup-sky` alone is not enough to stop all charges.
+
 ## Architecture
 
 ![DDP pipeline architecture](assets/ddp-pipeline.png)
@@ -155,28 +191,6 @@ docker push cr.eu-north1.nebius.cloud/e00avpz7r2gn4zffdk/nebius-trainer:v1
 .venv/bin/sky check kubernetes
 .venv/bin/sky launch -c ddp-run train_job.yaml -y
 .venv/bin/sky logs ddp-run > training_log.txt
-```
-
-The full cloud run uses paid GPU resources. SkyPilot cleanup alone is not enough, because the Kubernetes GPU node group, cluster, registry images, and disks can still incur charges.
-
-After saving the logs, run:
-
-```bash
-./run-full-project.sh cleanup-sky
-```
-
-To delete the cloud resources created for this project, use the guarded cleanup command:
-
-```bash
-CONFIRM_DELETE_CLOUD=1 ./run-full-project.sh cleanup-cloud
-```
-
-The guard is intentional. This command deletes the SkyPilot runtime, Kubernetes cluster, GPU node group, registry artifacts, and registry configured by the IDs at the top of `run-full-project.sh`.
-
-Verify cleanup with:
-
-```bash
-./run-full-project.sh verify-cloud-cleanup
 ```
 
 ## External References
