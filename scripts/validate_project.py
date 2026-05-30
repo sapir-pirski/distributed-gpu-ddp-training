@@ -114,6 +114,24 @@ def validate_training_log() -> None:
             fail(f"training_log.txt is missing expected evidence: {expected}")
 
 
+def validate_run_summary() -> None:
+    summary_path = Path("RUN_SUMMARY.md")
+    if not summary_path.is_file():
+        fail("RUN_SUMMARY.md is missing; run './run-full-project.sh summarize-run'")
+
+    summary = summary_path.read_text(encoding="utf-8")
+    for expected in (
+        "World size | 2",
+        "Backend | `nccl`",
+        "Status | SUCCEEDED",
+        "Train runtime | 37.76 sec",
+        "Train loss | 8.061",
+        "Eval loss | 8.81",
+    ):
+        if expected not in summary:
+            fail(f"RUN_SUMMARY.md is missing expected value: {expected}")
+
+
 def validate_zip(zip_path: Path) -> None:
     if not zip_path.is_file():
         fail(f"{zip_path} does not exist")
@@ -142,6 +160,7 @@ def main() -> None:
     validate_node_group_config()
     validate_train_job()
     validate_training_log()
+    validate_run_summary()
     if args.zip:
         validate_zip(args.zip)
 

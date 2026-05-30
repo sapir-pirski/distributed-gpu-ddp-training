@@ -31,9 +31,13 @@ jobs:
         run: |
           python -m py_compile train.py
           python -m py_compile scripts/validate_project.py
+          python -m py_compile scripts/generate_run_summary.py
 
       - name: Validate JSON, YAML, and training evidence
-        run: python scripts/validate_project.py
+        run: |
+          python scripts/generate_run_summary.py
+          python scripts/validate_project.py
+          git diff --exit-code RUN_SUMMARY.md
 
       - name: Check shell scripts
         run: |

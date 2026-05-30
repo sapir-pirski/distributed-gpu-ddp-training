@@ -155,6 +155,7 @@ training_log.txt
 |-- train.py
 |-- train_job.yaml
 |-- training_log.txt
+|-- RUN_SUMMARY.md
 |-- run-full-project.sh
 |-- TASK.md
 |-- licence.md
@@ -174,6 +175,8 @@ training_log.txt
 `mk8s-ng-config.json` is the exported Nebius node-group metadata/spec for the successful two-node GPU node group.
 
 `training_log.txt` is the successful SkyPilot log with NCCL initialization and DDP completion.
+
+`RUN_SUMMARY.md` is generated from `training_log.txt` and `train_job.yaml` to summarize the distributed setup, training metrics, and success evidence.
 
 `run-full-project.sh` documents the full pipeline and provides executable subcommands for local checks, Docker image work, SkyPilot launch, log capture, packaging, and cleanup.
 

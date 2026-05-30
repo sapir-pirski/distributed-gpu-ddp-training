@@ -134,6 +134,10 @@ capture_logs() {
   perl -0pi -e 's/\x1b\[[0-9;?]*[ -\/]*[@-~]//g' training_log.txt
 }
 
+summarize_run() {
+  python scripts/generate_run_summary.py
+}
+
 package_submission() {
   rm -f "$SUBMISSION_ZIP"
   zip -D "$SUBMISSION_ZIP" mk8s-ng-config.json Dockerfile train.py train_job.yaml training_log.txt
@@ -266,6 +270,7 @@ Commands:
   sky-check            Verify SkyPilot Kubernetes access.
   sky-launch           Launch the two-node SkyPilot DDP job.
   capture-logs         Fetch SkyPilot logs into training_log.txt.
+  summarize-run        Generate RUN_SUMMARY.md from training_log.txt.
   package              Build the five-file submission zip.
   package-submission   Same as package; explicit assignment archive command.
   cleanup-sky          Shut down the SkyPilot runtime.
@@ -291,6 +296,7 @@ main() {
     sky-check) sky_check ;;
     sky-launch) sky_launch ;;
     capture-logs) capture_logs ;;
+    summarize-run) summarize_run ;;
     package|package-submission) package_submission ;;
     cleanup-sky) cleanup_sky ;;
     cleanup-cloud) cleanup_cloud ;;
@@ -302,6 +308,7 @@ main() {
       sky_check
       sky_launch
       capture_logs
+      summarize_run
       package_submission
       cleanup_sky
       ;;
