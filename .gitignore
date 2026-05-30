@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Local environments and caches
 .venv/
@@ -17,6 +19,8 @@ output/
 outputs/
 runs/
 wandb/
+
+# Generated assignment archive
 nebius-ddp-submission.zip
 
 # Keep assignment deliverables visible:

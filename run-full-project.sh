@@ -93,10 +93,19 @@ STEPS
 }
 
 verify_local() {
-  python -m py_compile train.py
-  jq . mk8s-ng-config.json >/dev/null
-  rg -n "World size: 2|NCCL|Training complete|status: SUCCEEDED" training_log.txt
+  python -m py_compile train.py scripts/validate_project.py scripts/generate_run_summary.py
+  python scripts/generate_run_summary.py
+  python scripts/validate_project.py
+
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git diff --exit-code RUN_SUMMARY.md >/dev/null || {
+      echo "RUN_SUMMARY.md is stale; run './run-full-project.sh summarize-run' and commit the update."
+      return 1
+    }
+  fi
+
   if [[ -f "$SUBMISSION_ZIP" ]]; then
+    python scripts/validate_project.py --zip "$SUBMISSION_ZIP"
     zipinfo -1 "$SUBMISSION_ZIP"
   else
     echo "$SUBMISSION_ZIP is not present; run './run-full-project.sh package-submission' to recreate it."

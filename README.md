@@ -156,6 +156,9 @@ training_log.txt
 |-- train_job.yaml
 |-- training_log.txt
 |-- RUN_SUMMARY.md
+|-- scripts/
+|   |-- generate_run_summary.py
+|   `-- validate_project.py
 |-- run-full-project.sh
 |-- TASK.md
 |-- licence.md
@@ -178,6 +181,10 @@ training_log.txt
 
 `RUN_SUMMARY.md` is generated from `training_log.txt` and `train_job.yaml` to summarize the distributed setup, training metrics, and success evidence.
 
+`scripts/generate_run_summary.py` parses the training log and SkyPilot job YAML to regenerate `RUN_SUMMARY.md`.
+
+`scripts/validate_project.py` checks the required assignment files, Docker dependency pinning, SkyPilot job structure, NCCL/DDP evidence, run summary content, and optional submission zip contents.
+
 `run-full-project.sh` documents the full pipeline and provides executable subcommands for local checks, Docker image work, SkyPilot launch, log capture, packaging, and cleanup.
 
 ## Local Verification
@@ -190,10 +197,12 @@ Run:
 
 This checks:
 
-1. `train.py` compiles.
-2. `mk8s-ng-config.json` is valid JSON.
-3. `training_log.txt` includes NCCL/DDP success evidence.
-4. The expected submission file list is printed if the zip exists.
+1. Python files compile.
+2. `RUN_SUMMARY.md` can be regenerated from the real log.
+3. `mk8s-ng-config.json` has the expected node-group structure.
+4. `train_job.yaml` has the expected SkyPilot/DDP structure.
+5. `training_log.txt` includes NCCL/DDP success evidence.
+6. The submission zip is validated if it exists.
 
 ## Reproducing the Cloud Run
 
