@@ -99,7 +99,7 @@ verify_local() {
   if [[ -f "$SUBMISSION_ZIP" ]]; then
     zipinfo -1 "$SUBMISSION_ZIP"
   else
-    echo "$SUBMISSION_ZIP is not present; run './run-full-project.sh package' to recreate it."
+    echo "$SUBMISSION_ZIP is not present; run './run-full-project.sh package-submission' to recreate it."
   fi
 }
 
@@ -135,8 +135,10 @@ capture_logs() {
 }
 
 package_submission() {
+  rm -f "$SUBMISSION_ZIP"
   zip -D "$SUBMISSION_ZIP" mk8s-ng-config.json Dockerfile train.py train_job.yaml training_log.txt
-  unzip -l "$SUBMISSION_ZIP"
+  python scripts/validate_project.py --zip "$SUBMISSION_ZIP"
+  zipinfo -1 "$SUBMISSION_ZIP"
 }
 
 cleanup_sky() {
@@ -265,6 +267,7 @@ Commands:
   sky-launch           Launch the two-node SkyPilot DDP job.
   capture-logs         Fetch SkyPilot logs into training_log.txt.
   package              Build the five-file submission zip.
+  package-submission   Same as package; explicit assignment archive command.
   cleanup-sky          Shut down the SkyPilot runtime.
   cleanup-cloud        Delete SkyPilot, Kubernetes, registry images, and registry.
                        Requires CONFIRM_DELETE_CLOUD=1.
@@ -288,7 +291,7 @@ main() {
     sky-check) sky_check ;;
     sky-launch) sky_launch ;;
     capture-logs) capture_logs ;;
-    package) package_submission ;;
+    package|package-submission) package_submission ;;
     cleanup-sky) cleanup_sky ;;
     cleanup-cloud) cleanup_cloud ;;
     verify-cloud-cleanup) verify_cloud_cleanup ;;

@@ -68,16 +68,20 @@ train_job.yaml
 training_log.txt
 ```
 
-The archive itself is generated output and is not kept in the repo. Recreate it with:
+The archive itself is generated output and is not kept in the repo. Recreate the exact assignment archive with:
 
 ```bash
-./run-full-project.sh package
+./run-full-project.sh package-submission
 ```
 
-Verify its contents with:
+The command removes any old archive, creates a new zip with exactly the five required files, validates it with `scripts/validate_project.py`, and prints the final contents:
 
-```bash
-unzip -l nebius-ddp-submission.zip
+```text
+mk8s-ng-config.json
+Dockerfile
+train.py
+train_job.yaml
+training_log.txt
 ```
 
 ## Repository Layout
