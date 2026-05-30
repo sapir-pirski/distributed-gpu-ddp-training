@@ -150,7 +150,27 @@ docker push cr.eu-north1.nebius.cloud/e00avpz7r2gn4zffdk/nebius-trainer:v1
 .venv/bin/sky logs ddp-run > training_log.txt
 ```
 
-The full cloud run uses paid GPU resources. The SkyPilot runtime was shut down after the successful run, but the Kubernetes GPU node group must be deleted or scaled down separately to stop GPU charges.
+The full cloud run uses paid GPU resources. SkyPilot cleanup alone is not enough, because the Kubernetes GPU node group, cluster, registry images, and disks can still incur charges.
+
+After saving the logs, run:
+
+```bash
+./run-full-project.sh cleanup-sky
+```
+
+To delete the cloud resources created for this project, use the guarded cleanup command:
+
+```bash
+CONFIRM_DELETE_CLOUD=1 ./run-full-project.sh cleanup-cloud
+```
+
+The guard is intentional. This command deletes the SkyPilot runtime, Kubernetes cluster, GPU node group, registry artifacts, and registry configured by the IDs at the top of `run-full-project.sh`.
+
+Verify cleanup with:
+
+```bash
+./run-full-project.sh verify-cloud-cleanup
+```
 
 ## External References
 

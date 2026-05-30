@@ -2,12 +2,15 @@
 set -euo pipefail
 
 REGION="${REGION:-eu-north1}"
+PROJECT_ID="${PROJECT_ID:-project-e00kqmm8pr00pmxqt43be3}"
 REGISTRY_ID="${REGISTRY_ID:-e00avpz7r2gn4zffdk}"
+REGISTRY_RESOURCE_ID="${REGISTRY_RESOURCE_ID:-registry-${REGISTRY_ID}}"
 IMAGE_NAME="${IMAGE_NAME:-nebius-trainer}"
 IMAGE_TAG="${IMAGE_TAG:-v1}"
 IMAGE_URI="${IMAGE_URI:-cr.${REGION}.nebius.cloud/${REGISTRY_ID}/${IMAGE_NAME}:${IMAGE_TAG}}"
 
 CLUSTER_CONTEXT="${CLUSTER_CONTEXT:-nebius-ddp-mk8s}"
+CLUSTER_ID="${CLUSTER_ID:-mk8scluster-e00gtp60n9mh1n1kva}"
 NODE_GROUP_ID="${NODE_GROUP_ID:-mk8snodegroup-e00bcab74e3vwqwt50}"
 SKY_CLUSTER="${SKY_CLUSTER:-ddp-run}"
 SKY_JOB_ID="${SKY_JOB_ID:-}"
@@ -79,7 +82,13 @@ Step-by-step project run:
 16. Shut down the SkyPilot runtime after logs are saved.
    ${SKY} down ${SKY_CLUSTER} -y
 
-Note: The Kubernetes GPU node group is separate from the SkyPilot runtime and may still need to be deleted or scaled down in Nebius to stop GPU charges.
+17. Delete paid cloud resources after the assignment is complete.
+   CONFIRM_DELETE_CLOUD=1 ./run-full-project.sh cleanup-cloud
+
+18. Verify that no project resources remain.
+   ./run-full-project.sh verify-cloud-cleanup
+
+Note: The Kubernetes GPU node group is separate from the SkyPilot runtime. Running cleanup-sky alone is not enough to stop all cloud charges.
 STEPS
 }
 
@@ -134,6 +143,114 @@ cleanup_sky() {
   "$SKY" down "$SKY_CLUSTER" -y
 }
 
+require_cloud_delete_confirmation() {
+  if [[ "${CONFIRM_DELETE_CLOUD:-}" != "1" ]]; then
+    cat >&2 <<WARNING
+Refusing to delete cloud resources without explicit confirmation.
+
+This command deletes real Nebius resources:
+  - SkyPilot runtime: ${SKY_CLUSTER}
+  - Kubernetes cluster: ${CLUSTER_ID}
+  - GPU node group under that cluster
+  - Container registry: ${REGISTRY_RESOURCE_ID}
+  - Registry artifacts/images
+
+Run this exact command when you are ready:
+  CONFIRM_DELETE_CLOUD=1 $0 cleanup-cloud
+WARNING
+    exit 2
+  fi
+}
+
+resource_exists() {
+  local resource_type="$1"
+  local resource_id="$2"
+
+  "$NEBIUS" "$resource_type" get --id "$resource_id" --format json >/dev/null 2>&1
+}
+
+delete_cluster_if_exists() {
+  if resource_exists "mk8s cluster" "$CLUSTER_ID"; then
+    "$NEBIUS" mk8s cluster delete --id "$CLUSTER_ID"
+  else
+    echo "Kubernetes cluster ${CLUSTER_ID} is already absent."
+  fi
+}
+
+delete_registry_if_exists() {
+  if ! resource_exists "registry" "$REGISTRY_RESOURCE_ID"; then
+    echo "Container registry ${REGISTRY_RESOURCE_ID} is already absent."
+    return
+  fi
+
+  local artifact_ids
+  artifact_ids="$(
+    "$NEBIUS" registry image list --parent-id "$REGISTRY_RESOURCE_ID" --format json \
+      | jq -r '.items[]?.id'
+  )"
+
+  if [[ -n "$artifact_ids" ]]; then
+    while IFS= read -r artifact_id; do
+      [[ -z "$artifact_id" ]] && continue
+      "$NEBIUS" registry image delete --id "$artifact_id" || true
+    done <<< "$artifact_ids"
+  fi
+
+  artifact_ids="$(
+    "$NEBIUS" registry image list --parent-id "$REGISTRY_RESOURCE_ID" --format json \
+      | jq -r '.items[]?.id'
+  )"
+
+  if [[ -n "$artifact_ids" ]]; then
+    while IFS= read -r artifact_id; do
+      [[ -z "$artifact_id" ]] && continue
+      "$NEBIUS" registry image delete --id "$artifact_id"
+    done <<< "$artifact_ids"
+  fi
+
+  "$NEBIUS" registry delete --id "$REGISTRY_RESOURCE_ID"
+}
+
+cleanup_cloud() {
+  require_cloud_delete_confirmation
+
+  cleanup_sky || true
+  delete_cluster_if_exists
+  delete_registry_if_exists
+  verify_cloud_cleanup
+}
+
+verify_empty_list() {
+  local label="$1"
+  shift
+
+  local output
+  output="$("$@" --format json)"
+
+  if [[ "$output" == "{}" || "$output" == '{"items":[]}' ]]; then
+    echo "OK: ${label}: none"
+    return
+  fi
+
+  local count
+  count="$(jq '(.items // []) | length' <<< "$output")"
+  if [[ "$count" == "0" ]]; then
+    echo "OK: ${label}: none"
+  else
+    echo "WARNING: ${label}: ${count} resource(s) still present"
+    jq . <<< "$output"
+    return 1
+  fi
+}
+
+verify_cloud_cleanup() {
+  "$SKY" status || true
+  verify_empty_list "Kubernetes clusters" "$NEBIUS" mk8s cluster list --parent-id "$PROJECT_ID"
+  verify_empty_list "Container registries" "$NEBIUS" registry list --parent-id "$PROJECT_ID"
+  verify_empty_list "Compute instances" "$NEBIUS" compute instance list --parent-id "$PROJECT_ID"
+  verify_empty_list "Compute disks" "$NEBIUS" compute disk list --parent-id "$PROJECT_ID"
+}
+
 usage() {
   cat <<USAGE
 Usage: $0 <command>
@@ -149,6 +266,9 @@ Commands:
   capture-logs         Fetch SkyPilot logs into training_log.txt.
   package              Build the five-file submission zip.
   cleanup-sky          Shut down the SkyPilot runtime.
+  cleanup-cloud        Delete SkyPilot, Kubernetes, registry images, and registry.
+                       Requires CONFIRM_DELETE_CLOUD=1.
+  verify-cloud-cleanup Verify no clusters, registries, instances, or disks remain.
   all                  Run the cloud pipeline from Docker build through packaging.
 
 The all command can create paid cloud/GPU usage. Check the variables at the top
@@ -170,6 +290,8 @@ main() {
     capture-logs) capture_logs ;;
     package) package_submission ;;
     cleanup-sky) cleanup_sky ;;
+    cleanup-cloud) cleanup_cloud ;;
+    verify-cloud-cleanup) verify_cloud_cleanup ;;
     all)
       docker_build
       docker_push
