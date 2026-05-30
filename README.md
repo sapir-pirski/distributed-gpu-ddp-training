@@ -1,5 +1,7 @@
 # Nebius Academy DDP Training
 
+[![Validate project](https://github.com/sapir-pirski/distributed-gpu-ddp-training/actions/workflows/ci.yml/badge.svg)](https://github.com/sapir-pirski/distributed-gpu-ddp-training/actions/workflows/ci.yml)
+
 ![Distributed GPU training on Nebius Cloud](assets/ddp-architecture.png)
 
 This repository contains a completed distributed GPU training pipeline for the Nebius Academy DDP assignment. The project builds a Docker image, pushes it to Nebius Container Registry, provisions a two-node GPU Kubernetes node group, and runs a multi-node PyTorch Distributed Data Parallel job through SkyPilot.
