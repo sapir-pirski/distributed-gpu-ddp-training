@@ -74,6 +74,27 @@ The pipeline is intentionally simple and reproducible:
 7. `train.py` initializes NCCL and fine-tunes `facebook/opt-1.3b` for a short validation run.
 8. `training_log.txt` captures the full run output.
 
+## Architecture Decisions And Limitations
+
+### Decisions
+
+- SkyPilot is used instead of raw Kubernetes manifests to simplify multi-node orchestration, local workdir sync, cluster targeting, and log collection.
+- PyTorch DDP with `torchrun` is used because it exposes the distributed runtime clearly: node rank, world size, master address, master port, and GPUs per node.
+- NCCL is used as the distributed backend because the workload runs on GPUs and needs optimized collective communication.
+- Docker is used so both Kubernetes nodes run the same CUDA, PyTorch, and Python dependency environment.
+- Python dependencies are pinned in `requirements.txt` to make future Docker rebuilds more reproducible.
+- H200 nodes were used because earlier H100/L40S provisioning attempts hit capacity limits. The final run still satisfies the assignment goal because it uses two separate one-GPU nodes.
+- The assignment zip is generated separately from the repository because `TASK.md` requires exactly five files and excludes docs, assets, CI, and helper scripts.
+
+### Limitations
+
+- Training is intentionally short (`MAX_STEPS=10`) and validates the distributed infrastructure rather than model quality.
+- The successful log proves two-node DDP/NCCL initialization and completion, not long-running convergence or model performance.
+- The job downloads the model and dataset from Hugging Face at runtime, so a rerun depends on external network availability.
+- Registry, project, cluster, and node group IDs in the scripts are specific to the original cloud environment and must be changed for reuse.
+- The project validates two nodes with one GPU each; it does not benchmark scaling across larger GPU clusters.
+- The current cleanup command is intentionally destructive and guarded by `CONFIRM_DELETE_CLOUD=1`.
+
 ## Run Evidence
 
 ![Terminal run evidence](assets/run-evidence.svg)
